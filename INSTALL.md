@@ -75,7 +75,8 @@ patch 层有热监视（`watchUserPatches`），但为干净起见重启一次�
 
 1. 设置里能看到并选中 `human-task` preset，且被记为默认。
 2. 让 agent 调 `human_task`（或 `human_task_ready_check`）：应弹出「同意」对话框，同意后出现任务对话框，六个操作 + 倒计时正常。
-3. 重启 harness 后无需任何手动动作，插件仍在（真·预加载，非动态加载）。
+3. 弹窗出现时播放预置提示音（`assets/notification.wav`，已内联进 client 包，无需额外分发）；静音按钮可关闭并持久化。
+4. 重启 harness 后无需任何手动动作，插件仍在（真·预加载，非动态加载）。
 
 ## 与动态插件的关系
 

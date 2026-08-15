@@ -56,6 +56,13 @@ const PACKAGES = {
   "dsh-human-task-client": { dir: "human-task-client", face: "client" },
 };
 
+// ── 0. embed the notification sound into the client source ──────────────────
+// Regenerates packages/dsh-human-task-client/src/client/sound.ts from
+// assets/notification.wav so the browser bundle carries the pre-recorded sound
+// (and the client needs no host-side file lookup or RPC round-trip). Run before
+// the copy step below so the generated file travels into the harness workspace.
+run(process.execPath, [resolve(repoRoot, "scripts", "embed-sound.mjs")], repoRoot);
+
 // ── 1. copy + clean stale build output ──────────────────────────────────────
 // Remove any compiled artifacts that leaked into src/ (keep only .ts/.tsx).
 function cleanSrc(dir) {

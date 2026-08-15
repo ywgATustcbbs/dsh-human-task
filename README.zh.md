@@ -52,6 +52,7 @@ dsh-human-task/
 - **两级门控**：会话同意（首调用弹窗，无响应默认拒绝）+ AFK 在场检测（每小时最多一次）；「拒绝后续所有协助」全局生效；单实例（`busy`）。
 - **任务窗**：标题 / 步骤 / 成功条件 / 反馈要求 / 倒计时 / 多行反馈框；六个操作：完成 / 部分失败 / 失败 / 取消 / 延长时间（下拉 5/10/15 分钟，累加）/ 拒绝后续所有协助。
 - **结果状态**：`success / partial / failed / cancelled / timeout / error / denied`（门控另有 `ready / granted / present / afk`）。
+- **预置提示音**：每个新弹窗播放 `assets/notification.wav`（构建时内联进浏览器 bundle，随 client 包分发，无需额外文件）；解码失败时回退到合成振荡器「叮」；可静音（持久化）。
 - **跟随 Harness**：对话框文字按 Harness 语言选项中英切换；配色按 Harness 主题亮/暗切换（暗色下更深背景、按钮统一深色）。
 
 ## 装载为动态插件

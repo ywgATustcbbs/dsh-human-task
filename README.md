@@ -52,6 +52,7 @@ Two loading paths:
 - **Two-level gate** — session consent (first-call dialog, no response = decline) + AFK presence check (at most once per hour); "Decline all future assistance" applies globally; single instance (`busy`).
 - **Task dialog** — title / steps / success condition / feedback request / countdown / multiline feedback box; six actions: Done / Partial failure / Failed / Cancel / Extend time (5/10/15 min dropdown, additive) / Decline all future assistance.
 - **Result statuses** — `success / partial / failed / cancelled / timeout / error / denied` (gates additionally return `ready / granted / present / afk`).
+- **Pre-recorded sound** — each new dialog plays `assets/notification.wav` (embedded into the browser bundle at build time, so it ships with the client package and needs no extra file); falls back to a synthesized oscillator "ding" if decoding fails; mutable (persisted).
 - **Follows the Harness** — dialog text switches between Chinese and English with the Harness language option; colors follow the Harness light/dark theme (darker background and uniformly dark buttons in dark mode).
 
 ## Load as a dynamic plugin

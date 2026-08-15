@@ -36,6 +36,7 @@ deepseek-ai-dsh-human-task-client-0.1.0.tgz
 
 脚本做的转换（`packages/dsh-human-task*` → harness 工作区）：
 
+0. 运行 `scripts/embed-sound.mjs`：把 `assets/notification.wav` 编码为 base64，生成 `packages/dsh-human-task-client/src/client/sound.ts`（生成文件，已 gitignore）。浏览器 bundle 因此内联了预置提示音，client 无需宿主侧文件查找或 RPC 即可播放真实音效（解码失败才回退合成振荡器）。
 1. 复制到 `packages/interaction/{human-task,human-task-tools,human-task-client}`（按 harness 约定去掉 `dsh-` 前缀，让 `paths` 通配符命中）。
 2. 重写每个 `package.json`：依赖改成 `workspace:^`、`main`/`types`/`exports`/`files` 改为 `lib/types` 布局（与 `dsh-goal` 同构）。
 3. 重写每个 `tsconfig.json`：`extends ../../../tsconfig.base(.client).json`、`outDir: lib/types`、补齐 project references。

@@ -4,7 +4,9 @@
  * Renders the consent / AFK / task dialogs in `shell.overlay` and drives the
  * host `ctx.humanTasks` Remote face (`poll` / `submit` / `getMute` / `setMute`).
  * Reads the Harness locale (zh/en) and theme (light/dark) at runtime, and plays
- * a synthesized "ding" on each new dialog with a persisted mute toggle.
+ * the pre-recorded notification sound (assets/notification.wav, embedded at
+ * build time) on each new dialog — falling back to a synthesized oscillator only
+ * when the wav cannot be decoded. A persisted mute toggle silences it.
  *
  * This file is the Client tsdown bundle entry (`./client` export). It uses JSX;
  * the build compiles it to the `window.__ModuleLoader__` browser format.
@@ -16,6 +18,7 @@ import React from "react";
 // client package needs NO entry in the shipped `dsh-api-remotes` assembly — this
 // is the key that makes the whole plugin installable via a user `cordis.patch.yml`.
 import humanTasksRemote from "@deepseek-ai/dsh-human-task/remote";
+import { NOTIFICATION_WAV_BASE64 } from "./sound";
 
 const name = "human-task-client";
 const inject = ["remote", "slots", "locale", "theme"];
@@ -177,41 +180,120 @@ async function apply(ctx: any) {
   const remote = ctx.get("remote.humanTasks");
   const h = React.createElement;
 
-  // ── synthesized "ding" (Web Audio) with per-instance dedup ────────────────
+  // ── notification sound (Web Audio) with per-instance dedup ────────────────
   const gRoot: any = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : {};
   const g = (gRoot.__humanTaskAudio = gRoot.__humanTaskAudio || {});
   g.instances = (g.instances || 0) + 1;
+
+  // Web Audio is gated by the host's autoplay policy (WebView2/Chromium keep a
+  // freshly created AudioContext `suspended` until a user gesture). Create the
+  // context eagerly and unlock it on the first user gesture, so a later
+  // agent-triggered dialog (which fires without any gesture) can still ding.
+  function ensureAudio(): any {
+    try {
+      const AC: any = typeof AudioContext !== "undefined" ? AudioContext : typeof (window as any).webkitAudioContext !== "undefined" ? (window as any).webkitAudioContext : null;
+      if (!AC) return null;
+      if (!g.audioCtx) g.audioCtx = new AC();
+      if (g.audioCtx.state === "suspended") g.audioCtx.resume().catch(() => {});
+      return g.audioCtx;
+    } catch {
+      return null;
+    }
+  }
+
+  let unlockCleanup: (() => void) | null = null;
+  function armAudioUnlock(): void {
+    if (unlockCleanup) return;
+    const events = ["pointerdown", "mousedown", "touchstart", "keydown"];
+    const unlock = () => {
+      const ac = ensureAudio();
+      if (ac && ac.state === "running" && unlockCleanup) {
+        unlockCleanup();
+        unlockCleanup = null;
+      }
+    };
+    events.forEach((e) => window.addEventListener(e, unlock, true));
+    unlockCleanup = () => events.forEach((e) => window.removeEventListener(e, unlock, true));
+  }
+
+  // Decode the embedded pre-recorded notification sound (assets/notification.wav)
+  // into a reusable AudioBuffer. Playback falls back to a synthesized oscillator
+  // only when the wav cannot be decoded.
+  function decodeSoundBase64(base64: string): ArrayBuffer | null {
+    try {
+      const bin = atob(base64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i) & 0xff;
+      return bytes.buffer;
+    } catch {
+      return null;
+    }
+  }
+
+  function loadSound(): void {
+    if (g.soundLoaded) return;
+    g.soundLoaded = true;
+    const ac = ensureAudio();
+    if (!ac) return;
+    const buf = decodeSoundBase64(NOTIFICATION_WAV_BASE64);
+    if (!buf) return;
+    try {
+      const p = ac.decodeAudioData(buf);
+      if (p && typeof (p as any).then === "function") {
+        (p as Promise<AudioBuffer>).then((buffer) => {
+          g.audioBuffer = buffer;
+        }).catch(() => {
+          /* fall back to oscillator */
+        });
+      }
+    } catch {
+      /* fall back to oscillator */
+    }
+  }
 
   function beep() {
     const nowTs = Date.now();
     if (nowTs - (g.lastBeepAt || 0) < 500) return;
     g.lastBeepAt = nowTs;
-    try {
-      const AC: any = typeof AudioContext !== "undefined" ? AudioContext : typeof (window as any).webkitAudioContext !== "undefined" ? (window as any).webkitAudioContext : null;
-      if (!AC) return;
-      if (!g.audioCtx) g.audioCtx = new AC();
-      const play = () => {
-        const now = g.audioCtx.currentTime;
-        const osc = g.audioCtx.createOscillator();
-        const gain = g.audioCtx.createGain();
+    const ac = ensureAudio();
+    if (!ac) return;
+    const play = () => {
+      if (g.audioBuffer) {
+        const src = ac.createBufferSource();
+        src.buffer = g.audioBuffer;
+        src.connect(ac.destination);
+        src.start(0);
+      } else {
+        const now = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
         osc.type = "sine";
         osc.frequency.value = 880;
         gain.gain.setValueAtTime(0.0001, now);
         gain.gain.exponentialRampToValueAtTime(0.4, now + 0.02);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
         osc.connect(gain);
-        gain.connect(g.audioCtx.destination);
+        gain.connect(ac.destination);
         osc.start(now);
         osc.stop(now + 0.2);
-      };
-      if (g.audioCtx.state === "suspended") g.audioCtx.resume().then(play).catch(() => {});
-      else play();
-    } catch {
-      /* noop */
-    }
+      }
+    };
+    if (ac.state === "suspended") ac.resume().then(play).catch(() => {});
+    else play();
   }
 
+  // Warm up + unlock + decode eagerly: the dialog's own ring normally fires
+  // with no user gesture in flight, so the context must already be running and
+  // the sound buffer already decoded by then.
+  ensureAudio();
+  armAudioUnlock();
+  loadSound();
+
   ctx.effect(() => () => {
+    if (unlockCleanup) {
+      unlockCleanup();
+      unlockCleanup = null;
+    }
     g.instances = Math.max(0, (g.instances || 1) - 1);
     if (g.instances === 0) {
       if (g.audioCtx) {
@@ -222,6 +304,8 @@ async function apply(ctx: any) {
         }
       }
       g.audioCtx = null;
+      g.audioBuffer = null;
+      g.soundLoaded = false;
       g.lastBeepAt = 0;
       g.lastBeepedId = null;
     }
@@ -408,7 +492,7 @@ async function apply(ctx: any) {
 
     const onExtend = (minutes: number) => {
       submit(it, "extend", "", { minutes }).then((r: any) => {
-        if (r && r.ok && typeof r.deadlineAt === "number") setDeadlineAt(r.deadlineAt);
+        if (r && r.ok && r.value && typeof r.value.deadlineAt === "number") setDeadlineAt(r.value.deadlineAt);
       });
     };
 
@@ -478,7 +562,7 @@ async function apply(ctx: any) {
 
     React.useEffect(() => {
       remote.getMute().then((r: any) => {
-        if (r && typeof r.muted === "boolean") setMuted(r.muted);
+        if (r && r.ok && r.value && typeof r.value.muted === "boolean") setMuted(r.value.muted);
       }).catch(() => {});
     }, []);
 
@@ -489,10 +573,13 @@ async function apply(ctx: any) {
         if (polling) return;
         polling = true;
         try {
-          const cur = await remote.poll();
+          // Typert Remote methods resolve to a `{ ok, value }` carrier (see
+          // @deepseek-ai/dsh-api-gateway ClientRemoteService.invoke). Unpack it:
+          // `value` is the InteractionSnapshot, or null when no dialog is active.
+          const r = await remote.poll();
           if (stopped) return;
-          if (cur) {
-            setInteraction(cur);
+          if (r && r.ok) {
+            setInteraction(r.value);
           } else {
             setInteraction(null);
           }

@@ -21,6 +21,9 @@ lib/
 packages/*/src/**/*.js
 packages/*/src/**/*.d.ts
 
+# 由 scripts/embed-sound.mjs 生成的音效常量（源是 assets/notification.wav）
+packages/dsh-human-task-client/src/client/sound.ts
+
 # 构建输出目录本身保留，但其中的 .tgz 是产物
 build/*.tgz
 !build/README.md
