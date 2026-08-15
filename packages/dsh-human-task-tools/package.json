@@ -1,7 +1,7 @@
 {
   "name": "@deepseek-ai/dsh-human-task-tools",
   "description": "Model-facing human_task / human_task_ready_check tools and the human-task skill over the ctx.humanTasks seam",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publishConfig": {
     "access": "public"
   },
@@ -23,7 +23,7 @@
   "license": "MIT",
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
-    "@deepseek-ai/dsh-human-task": "^0.1.0",
+    "@deepseek-ai/dsh-human-task": "^0.1.1",
     "@deepseek-ai/dsh-skill": "^0.1.0-rc.6",
     "@deepseek-ai/dsh-tools": "^0.1.0-rc.6"
   }

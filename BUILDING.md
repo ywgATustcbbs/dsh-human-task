@@ -29,9 +29,9 @@ node scripts/harness-build.mjs ../deepseek-harness
 产物落到 `build/`：
 
 ```text
-deepseek-ai-dsh-human-task-0.1.0.tgz
-deepseek-ai-dsh-human-task-tools-0.1.0.tgz
-deepseek-ai-dsh-human-task-client-0.1.0.tgz
+deepseek-ai-dsh-human-task-0.1.1.tgz
+deepseek-ai-dsh-human-task-tools-0.1.1.tgz
+deepseek-ai-dsh-human-task-client-0.1.1.tgz
 ```
 
 脚本做的转换（`packages/dsh-human-task*` → harness 工作区）：

@@ -1,7 +1,7 @@
 {
   "name": "@deepseek-ai/dsh-human-task",
   "description": "Human-in-the-loop capability seam (ctx.humanTasks): pause an agent tool until the human performs a real-world task or returns an observation",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publishConfig": {
     "access": "public"
   },

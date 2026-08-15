@@ -4,9 +4,9 @@
 
 | 包 | 装到（新用户的 harness） |
 |---|---|
-| `deepseek-ai-dsh-human-task-0.1.0.tgz` | `$DSH_HOME/profiles/<name>/node_modules/@deepseek-ai/dsh-human-task/` |
-| `deepseek-ai-dsh-human-task-tools-0.1.0.tgz` | `$DSH_HOME/profiles/<name>/node_modules/@deepseek-ai/dsh-human-task-tools/` |
-| `deepseek-ai-dsh-human-task-client-0.1.0.tgz` | `$DSH_HOME/profiles/<name>/node_modules/@deepseek-ai/dsh-human-task-client/` |
+| `deepseek-ai-dsh-human-task-0.1.1.tgz` | `$DSH_HOME/profiles/<name>/node_modules/@deepseek-ai/dsh-human-task/` |
+| `deepseek-ai-dsh-human-task-tools-0.1.1.tgz` | `$DSH_HOME/profiles/<name>/node_modules/@deepseek-ai/dsh-human-task-tools/` |
+| `deepseek-ai-dsh-human-task-client-0.1.1.tgz` | `$DSH_HOME/profiles/<name>/node_modules/@deepseek-ai/dsh-human-task-client/` |
 
 `$DSH_HOME` 默认 `~/.dsh`；`<name>` 是 profile 名（默认 `web`）。
 

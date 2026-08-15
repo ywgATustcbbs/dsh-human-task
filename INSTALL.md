@@ -9,9 +9,9 @@
 ### 1. 下载 release 资产
 
 ```text
-deepseek-ai-dsh-human-task-0.1.0.tgz          # 宿主服务（ctx.humanTasks + Remote 面）
-deepseek-ai-dsh-human-task-tools-0.1.0.tgz    # 工具 + 技能（进 preset）
-deepseek-ai-dsh-human-task-client-0.1.0.tgz   # 浏览器弹窗（shell.overlay）
+deepseek-ai-dsh-human-task-0.1.1.tgz          # 宿主服务（ctx.humanTasks + Remote 面）
+deepseek-ai-dsh-human-task-tools-0.1.1.tgz    # 工具 + 技能（进 preset）
+deepseek-ai-dsh-human-task-client-0.1.1.tgz   # 浏览器弹窗（shell.overlay）
 install/cordis.patch.yml
 preset/human-task/
 ```
@@ -23,13 +23,13 @@ harness 的 profile 位于 `$DSH_HOME/profiles/<name>/`（`$DSH_HOME` 默认 `~/
 ```bash
 # 方式 A：在 profile 目录里解包并记入 package.json dependencies
 cd "$DSH_HOME/profiles/web"
-npm install ./deepseek-ai-dsh-human-task-0.1.0.tgz \
-            ./deepseek-ai-dsh-human-task-tools-0.1.0.tgz \
-            ./deepseek-ai-dsh-human-task-client-0.1.0.tgz
+npm install ./deepseek-ai-dsh-human-task-0.1.1.tgz \
+            ./deepseek-ai-dsh-human-task-tools-0.1.1.tgz \
+            ./deepseek-ai-dsh-human-task-client-0.1.1.tgz
 
 # 方式 B：手动放到 flat 目录（healProfilesModuleFallback 维护的那一层）
 mkdir -p "$DSH_HOME/profiles/node_modules/@deepseek-ai"
-tar -xzf deepseek-ai-dsh-human-task-0.1.0.tgz       -C "$DSH_HOME/profiles/node_modules/@deepseek-ai" && mv .../package dsh-human-task
+tar -xzf deepseek-ai-dsh-human-task-0.1.1.tgz       -C "$DSH_HOME/profiles/node_modules/@deepseek-ai" && mv .../package dsh-human-task
 # （human-task-tools、human-task-client 同理）
 ```
 

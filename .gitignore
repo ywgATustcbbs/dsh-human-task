@@ -26,5 +26,6 @@ packages/dsh-human-task-client/src/client/sound.ts
 
 # 构建输出目录本身保留，但其中的 .tgz 是产物
 build/*.tgz
+build/*.zip
 !build/README.md
 !build/.gitkeep

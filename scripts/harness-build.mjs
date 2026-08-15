@@ -92,7 +92,7 @@ function writeJson(p, obj) {
 writeJson(join(harness, "packages", GROUP, "human-task", "package.json"), {
   name: "@deepseek-ai/dsh-human-task",
   description: "Human-in-the-loop capability seam (ctx.humanTasks): pause an agent tool until the human performs a real-world task or returns an observation",
-  version: "0.1.0",
+  version: "0.1.1",
   publishConfig: { access: "public" },
   type: "module",
   main: "lib/index.js",
@@ -135,7 +135,7 @@ writeJson(join(harness, "packages", GROUP, "human-task", "package.json"), {
 writeJson(join(harness, "packages", GROUP, "human-task-tools", "package.json"), {
   name: "@deepseek-ai/dsh-human-task-tools",
   description: "Model-facing human_task / human_task_ready_check tools and the human-task skill over the ctx.humanTasks seam",
-  version: "0.1.0",
+  version: "0.1.1",
   publishConfig: { access: "public" },
   type: "module",
   main: "lib/index.js",
@@ -168,7 +168,7 @@ writeJson(join(harness, "packages", GROUP, "human-task-tools", "package.json"), 
 writeJson(join(harness, "packages", GROUP, "human-task-client", "package.json"), {
   name: "@deepseek-ai/dsh-human-task-client",
   description: "Web human-task feature: consent / AFK / task dialogs in shell.overlay over the ctx.humanTasks Remote face",
-  version: "0.1.0",
+  version: "0.1.1",
   publishConfig: { access: "public" },
   type: "module",
   main: "lib/index.js",
