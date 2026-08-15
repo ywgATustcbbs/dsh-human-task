@@ -5,7 +5,7 @@
 //   - model tools: `human_task`, `human_task_ready_check`
 //   - runtime skill: `human-task`
 //   - Client<->Host RPC: `humanTask.poll`, `humanTask.submit`
-//   - Client<->Host RPC: `humanTask.sound`, `humanTask.getMute`, `humanTask.setMute`
+//   - Client<->Host RPC: `humanTask.sound`, `humanTask.getMute`, `humanTask.setMute`, `humanTask.diag`
 const AFK_INTERVAL_MS = 3600 * 1000
 
 function nowIso() { return new Date().toISOString() }
@@ -314,7 +314,7 @@ return {
 
     function normalizeInstructions(value) {
       if (Array.isArray(value)) {
-        return value.filter((v) => typeof v === 'string').map((v) => v)
+        return value.filter((v) => typeof v === 'string')
       }
       if (typeof value === 'string' && value.length > 0) {
         return [value]

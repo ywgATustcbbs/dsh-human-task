@@ -492,8 +492,7 @@ async function apply(ctx: any) {
           const cur = await remote.poll();
           if (stopped) return;
           if (cur) {
-            setInteraction(cur.interaction || null);
-            if (typeof cur.muted === "boolean") setMuted(cur.muted);
+            setInteraction(cur);
           } else {
             setInteraction(null);
           }
