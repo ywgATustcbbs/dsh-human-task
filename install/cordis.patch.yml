@@ -1,0 +1,30 @@
+# Human-in-the-loop plugin — user patch layer (Option B install recipe).
+#
+# Copy this file's contents into the harness user patch layer so the host
+# service and the browser dialogs are composed on every boot:
+#
+#   - home level:  $DSH_HOME/cordis.patch.yml   (applies to every profile)
+#   - profile level: $DSH_HOME/profiles/<name>/cordis.patch.yml
+#
+# The two rows below resolve as bare package specifiers against the harness
+# node_modules; for a fresh install they must be present as out-of-tree plugin
+# dependencies (see INSTALL.md — the agent drops the BUILT packages into
+# $DSH_HOME/profiles/<name>/node_modules or lists them in the profile's
+# package.json `dependencies`).
+#
+# `dsh-client-modules` (shipped) scans the final composed entries for `dsh.client`
+# packages and serves `dsh-human-task-client`'s browser bundle at runtime — no
+# web rebuild. The client bundle self-mounts the `remote.humanTasks` Remote face
+# via `ctx.remote.$mount`, so nothing in `dsh-api-remotes` needs editing.
+
+- insert:
+    # Host service: `ctx.humanTasks` — the consent/AFK/task state machine plus the
+    # poll/submit/getMute/setMute Remote face. Host-plane, like `dsh-user-questions`.
+    - id: human-task
+      name: '@deepseek-ai/dsh-human-task'
+
+    # Browser dialogs (consent / AFK / task) in `shell.overlay`. A `dsh.client`
+    # row: its node half is an empty host plugin, its browser half is served by
+    # `dsh-client-modules`. Host-plane, like `dsh-client-ui-user-questions`.
+    - id: human-task-client
+      name: '@deepseek-ai/dsh-human-task-client'

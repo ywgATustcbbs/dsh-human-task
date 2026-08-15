@@ -1,0 +1,2 @@
+name: 人工协作模式
+description: 标准编码 Agent + 人工协作（Human-in-the-loop）：human_task / human_task_ready_check 工具与 human-task 技能，内置会话同意与 AFK 两级门控，任务窗支持完成/部分失败/失败/取消/延长时间/拒绝后续所有协助。

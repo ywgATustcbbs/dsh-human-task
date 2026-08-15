@@ -1,0 +1,27 @@
+# 原始移植包（不纳入版本控制）
+temp/
+
+# 运行时状态文件
+.human-task-state.json
+
+# 通用忽略
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# 本地/独立构建产物（harness 工作区构建发生在仓库外的 harness 源码里；
+# 这些条目防止把仓库内偶发的 tsc/tsdown 输出误提交进版本控制）
+lib/
+*.tsbuildinfo
+*.d.ts.map
+*.js.map
+
+# 源码目录内可能残留的就地编译产物
+packages/*/src/**/*.js
+packages/*/src/**/*.d.ts
+
+# 构建输出目录本身保留，但其中的 .tgz 是产物
+build/*.tgz
+!build/README.md
+!build/.gitkeep

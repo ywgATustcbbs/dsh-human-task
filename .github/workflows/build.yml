@@ -1,0 +1,52 @@
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1) This repo (the plugin source).
+      - uses: actions/checkout@v4
+        with:
+          path: human-task
+
+      # 2) The DeepSeek Harness SOURCE workspace. The Typert generator's
+      #    registration is hardcoded to packages under <root>/packages, so the
+      #    build MUST run inside the harness source tree (where
+      #    @deepseek-ai/dsh-typert-protocol is itself a workspace package).
+      - uses: actions/checkout@v4
+        with:
+          repository: deepseek-ai/deepseek-harness
+          path: harness
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 3) One script does everything: copy the three packages into the harness
+      #    workspace (renamed to conventional dirs), rewrite manifests/tsconfigs
+      #    to harness conventions (workspace:^ deps, lib/types layout), register
+      #    the packages in the host/client TS project graphs, pnpm install, then
+      #    build:lib:host (tsc + Typert /remote codegen) + build:lib:client
+      #    (client tsdown bundle), and pack the three .tgz into human-task/build.
+      - name: Build and pack inside the harness workspace
+        run: node human-task/scripts/harness-build.mjs harness
+
+      - name: Upload packed artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: human-task-tgz
+          path: human-task/build/*.tgz
+          if-no-files-found: error
