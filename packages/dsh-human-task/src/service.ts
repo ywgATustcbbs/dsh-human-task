@@ -3,7 +3,7 @@
  *
  * One host Service owns the consent / AFK / task state machine and the single
  * active interaction. The model-facing tools live in
- * `@deepseek-ai/dsh-human-task-tools`; a Client UI package renders the dialog
+ * `dsh-human-task-tools`; a Client UI package renders the dialog
  * and drives the `@Remote` methods below.
  *
  * Mirrors `@deepseek-ai/dsh-user-questions` in shape: a Service class the host
@@ -13,7 +13,7 @@
  * composition (never an agent preset behind an `isolate` realm, which the
  * gateway could not see).
  *
- * @module @deepseek-ai/dsh-human-task
+ * @module dsh-human-task
  */
 import type { Context } from "@deepseek-ai/cordis";
 import { Remote, TypertRemoteService } from "@deepseek-ai/dsh-typert-protocol";

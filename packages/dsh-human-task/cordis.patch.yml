@@ -1,0 +1,21 @@
+# dsh bundle patch: inserts this plugin family into a profile's layer stack.
+# Applied automatically by `dsh plugin add dsh-human-task` via the `dsh.bundle`
+# manifest; the three rows resolve as bare package specifiers against the
+# profile node_modules where pnpm installed them as the bundle's dependencies.
+- insert:
+    # Host service: `ctx.humanTasks` — the consent/AFK/task state machine plus
+    # the poll/submit/getMute/setMute Remote face.
+    - id: human-task
+      name: 'dsh-human-task'
+
+    # Model-facing `human_task` / `human_task_ready_check` tools and the
+    # `human-task` skill over `ctx.humanTasks`. Registered globally, so every
+    # agent sees them regardless of preset.
+    - id: human-task-tools
+      name: 'dsh-human-task-tools'
+
+    # Web dialogs (consent / AFK / task) in `shell.overlay`. A `dsh.client`
+    # package: its node half is an empty host plugin, its browser half is
+    # served by `dsh-client-modules`.
+    - id: human-task-client
+      name: 'dsh-human-task-client'

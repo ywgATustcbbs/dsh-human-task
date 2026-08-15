@@ -6,7 +6,7 @@
  * so the browser type chain can consume them without loading the host Context
  * augmentation.
  *
- * @module @deepseek-ai/dsh-human-task/types
+ * @module dsh-human-task/types
  */
 
 /** Which dialog the current interaction renders. */

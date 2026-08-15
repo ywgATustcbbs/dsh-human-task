@@ -7,13 +7,13 @@
  * realm). The service it depends on lives in the HOST composition, exactly like
  * `tool-ask-user` depends on host `userQuestions`.
  *
- * @module @deepseek-ai/dsh-human-task-tools
+ * @module dsh-human-task-tools
  */
 import type { Context } from "@deepseek-ai/cordis";
 import { defineTool } from "@deepseek-ai/dsh-tools";
 import "@deepseek-ai/dsh-skill";
-import type { HumanTaskService } from "@deepseek-ai/dsh-human-task";
-import type { GateResult, TaskFields, TaskResult } from "@deepseek-ai/dsh-human-task/types";
+import type { HumanTaskService } from "dsh-human-task";
+import type { GateResult, TaskFields, TaskResult } from "dsh-human-task/types";
 
 const name = "human-task-tools";
 const inject = ["tools", "skills", "humanTasks"];

@@ -2,9 +2,17 @@
 
 > **Everything is a plugin — and so are you.**
 
-A DeepSeek Harness plugin that turns the real-world user into a sensor and actuator: the Agent analyzes, reasons, and decides, while the user performs physical actions, visual observation, and subjective judgment, returning structured JSON.
+A DeepSeek Harness plugin family that turns the real-world user into a sensor and actuator: the Agent analyzes, reasons, and decides, while the user performs physical actions, visual observation, and subjective judgment, returning structured JSON.
 
 > [中文](README.zh.md) | English
+
+## Install
+
+```sh
+dsh plugin add dsh-human-task
+```
+
+One command installs the whole family — the `ctx.humanTasks` host service, the `human_task` / `human_task_ready_check` model tools plus the `human-task` skill, and the web dialogs — and registers them globally, so every session sees the tools with no agent preset. Start a new session (or restart the harness) to pick up the new bundle layer.
 
 ## Application scenarios
 
@@ -29,12 +37,11 @@ dsh-human-task/
 │  ├─ host.js                   Host half (human_task / human_task_ready_check tools, human-task skill, RPC)
 │  └─ client.js                 Client half (consent / AFK / task dialogs in shell.overlay)
 ├─ packages/                    Persistent (restart-proof) npm-package source — build in the harness workspace
-│  ├─ dsh-human-task/           Host: ctx.humanTasks service + @Remote face + state machine
-│  ├─ dsh-human-task-tools/     Agent preset: human_task / human_task_ready_check tools + human-task skill
-│  └─ dsh-human-task-client/    Host(web): shell.overlay dialogs, self-mounts the Remote face
-├─ install/cordis.patch.yml     User patch recipe (insert host service + client rows) — the install hook
-├─ preset/human-task/           Agent Preset (agent.cordis.yml + preset.yml) for the tools + skill
-├─ INSTALL.md                   Fresh-user / install-agent guide (download built packages + patch + preset)
+│  ├─ dsh-human-task/           Host: ctx.humanTasks service + @Remote face + the dsh.bundle manifest + cordis.patch.yml
+│  ├─ dsh-human-task-tools/     human_task / human_task_ready_check tools + human-task skill (global registration)
+│  └─ dsh-human-task-client/    Host(web): shell.overlay dialogs, a dsh.client package
+├─ assets/                      notification.wav (embedded into the client bundle at build time)
+├─ INSTALL.md                   Fresh-user / install-agent guide (dsh plugin add)
 ├─ BUILDING.md                  Author/CI build guide (harness source workspace)
 ├─ README.md                    This file (English)
 ├─ README.zh.md                 Chinese version
@@ -43,8 +50,8 @@ dsh-human-task/
 
 Two loading paths:
 
+- **Bundle (recommended)**: `dsh plugin add dsh-human-task` installs the three published packages; the bundle's `cordis.patch.yml` inserts the service, tools, and client rows into the profile layer stack. The tools register globally, so they are available in every session with no preset and no web rebuild.
 - **Dynamic (zero build)**: pass `plugin/host.js` + `plugin/client.js` to `cordis_define` / `cordis_run`. Process-local, lost on restart.
-- **Persistent (Option B)**: build the three packages once (BUILDING.md), then a fresh user's agent installs the built packages + `install/cordis.patch.yml` + `preset/human-task/` (INSTALL.md). Auto-loads on every boot; dialogs work; no web rebuild and no `dsh-api-remotes` edit.
 
 ## Capabilities
 
@@ -61,4 +68,4 @@ Two loading paths:
 
 ## Important: dynamic plugins are process-local
 
-Dynamic plugins and their definitions live only in the current DSH process and are lost on restart (nothing is written to disk). For a persistent, restart-proof plugin, author it as an on-disk **Agent Preset** composition (`${DSH_HOME}/.agent-presets/<id>/cordis.yml` with a host and a client plugin row).
+Dynamic plugins and their definitions live only in the current DSH process and are lost on restart (nothing is written to disk). For a persistent, restart-proof install, use the bundle path above (`dsh plugin add dsh-human-task`).

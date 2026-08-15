@@ -2,9 +2,17 @@
 
 > **一切皆插件——你也是。**
 
-把「现实世界中的用户」当作传感器和执行者的 DeepSeek Harness 插件：Agent 负责分析、推理与决策，用户负责实际操作、视觉观察和主观判断，反馈以结构化 JSON 返回。
+把「现实世界中的用户」当作传感器和执行者的 DeepSeek Harness 插件族：Agent 负责分析、推理与决策，用户负责实际操作、视觉观察和主观判断，反馈以结构化 JSON 返回。
 
 > [English](README.md) | 中文
+
+## 安装
+
+```sh
+dsh plugin add dsh-human-task
+```
+
+一条命令装完整套——`ctx.humanTasks` 宿主服务、`human_task` / `human_task_ready_check` 模型工具与 `human-task` 技能、以及 Web 弹窗——并全局注册，**无需 Agent preset**，每个会话都能看到这些工具。开新会话（或重启 harness）即可生效。
 
 ## 应用场景
 
@@ -29,12 +37,11 @@ dsh-human-task/
 │  ├─ host.js                   Host 半（human_task / human_task_ready_check 工具 + human-task 技能 + RPC）
 │  └─ client.js                 Client 半（在 shell.overlay 渲染 同意 / AFK / 任务 三套对话框）
 ├─ packages/                    持久化（重启不丢）npm 包源码 —— 在 harness 源码工作区构建
-│  ├─ dsh-human-task/           Host：ctx.humanTasks 服务 + @Remote 面 + 状态机
-│  ├─ dsh-human-task-tools/     Agent preset：human_task / human_task_ready_check 工具 + human-task 技能
-│  └─ dsh-human-task-client/    Host(web)：shell.overlay 对话框，自挂 Remote 面
-├─ install/cordis.patch.yml     用户 patch 配方（insert 服务行 + 客户端行）—— 安装入口
-├─ preset/human-task/           Agent Preset（agent.cordis.yml + preset.yml），承载工具 + 技能
-├─ INSTALL.md                   全新用户 / 安装 agent 指南（下载产物 + patch + preset）
+│  ├─ dsh-human-task/           Host：ctx.humanTasks 服务 + @Remote 面 + dsh.bundle manifest + cordis.patch.yml
+│  ├─ dsh-human-task-tools/     human_task / human_task_ready_check 工具 + human-task 技能（全局注册）
+│  └─ dsh-human-task-client/    Host(web)：shell.overlay 对话框，dsh.client 包
+├─ assets/                      notification.wav（构建时内联进客户端 bundle）
+├─ INSTALL.md                   全新用户 / 安装 agent 指南（dsh plugin add）
 ├─ BUILDING.md                  作者 / CI 构建指南（harness 源码工作区）
 ├─ README.md                    英文版
 ├─ README.zh.md                 本文件（中文版）
@@ -43,8 +50,8 @@ dsh-human-task/
 
 两条装载路径：
 
+- **Bundle（推荐）**：`dsh plugin add dsh-human-task` 安装三个已发布包；bundle 的 `cordis.patch.yml` 把服务、工具、客户端三行 insert 进 profile 层栈。工具全局注册，无需 preset、无需重打包 web，每个会话都可用。
 - **动态（零构建）**：把 `plugin/host.js` + `plugin/client.js` 传给 `cordis_define` / `cordis_run`。进程内临时，重启即丢。
-- **持久化（Option B）**：先构建三个包一次（BUILDING.md），全新用户的 agent 安装「已构建的包 + `install/cordis.patch.yml` + `preset/human-task/`」（INSTALL.md）。每次启动自动预加载、弹窗可用，无需重打包 web、无需改 `dsh-api-remotes`。
 
 ## 能力
 
@@ -61,4 +68,4 @@ dsh-human-task/
 
 ## 重要说明：动态插件是进程内临时的
 
-动态插件与它的定义只存在于当前 DSH 进程，**进程重启即丢失**（不会写入磁盘）。如需长期可用、重启不丢，请把它固化为磁盘上的 **Agent Preset 组合**（`${DSH_HOME}/.agent-presets/<id>/cordis.yml` 里挂 host + client 两行插件）。
+动态插件与它的定义只存在于当前 DSH 进程，**进程重启即丢失**（不会写入磁盘）。如需长期可用、重启不丢，请用上面的 bundle 路径（`dsh plugin add dsh-human-task`）。

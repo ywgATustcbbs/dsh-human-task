@@ -11,13 +11,13 @@
  * This file is the Client tsdown bundle entry (`./client` export). It uses JSX;
  * the build compiles it to the `window.__ModuleLoader__` browser format.
  *
- * @module @deepseek-ai/dsh-human-task-client/client
+ * @module dsh-human-task-client/client
  */
 import React from "react";
 // Generated Host Remote contribution (Typert codegen). Self-mounted below so the
 // client package needs NO entry in the shipped `dsh-api-remotes` assembly — this
 // is the key that makes the whole plugin installable via a user `cordis.patch.yml`.
-import humanTasksRemote from "@deepseek-ai/dsh-human-task/remote";
+import humanTasksRemote from "dsh-human-task/remote";
 import { NOTIFICATION_WAV_BASE64 } from "./sound";
 
 const name = "human-task-client";

@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-human-task",
+  "name": "dsh-human-task",
   "description": "Human-in-the-loop capability seam (ctx.humanTasks): pause an agent tool until the human performs a real-world task or returns an observation",
   "version": "0.1.1",
   "publishConfig": {
@@ -26,6 +26,7 @@
       "default": "./lib/typert.remote-client.js"
     },
     "./src/*": "./src/*",
+    "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json"
   },
   "files": [
@@ -38,9 +39,19 @@
     "lib/typert.host.js",
     "lib/typert.host.d.ts",
     "lib/typert.remote-client.js",
-    "lib/typert.remote-client.d.ts"
+    "lib/typert.remote-client.d.ts",
+    "cordis.patch.yml"
   ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
   "license": "MIT",
+  "dependencies": {
+    "dsh-human-task-tools": "^0.1.1",
+    "dsh-human-task-client": "^0.1.1"
+  },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
     "@deepseek-ai/dsh-typert-protocol": "^0.1.0-rc.6"

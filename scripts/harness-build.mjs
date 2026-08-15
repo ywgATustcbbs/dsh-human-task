@@ -35,7 +35,13 @@ const flags = new Set(process.argv.slice(3));
 
 function run(cmd, args, cwd = harness, extraEnv = {}) {
   console.log(">", cmd, args.join(" "));
-  const r = spawnSync(cmd, args, {
+  // On Windows `shell: true` joins argv with spaces verbatim, so an argument
+  // that itself contains a space (this repo lives under a spaced path) is
+  // split. Quote each argument for the cmd.exe command line.
+  const winArgs = process.platform === "win32"
+    ? args.map((arg) => '"' + String(arg).replace(/"/g, '\\"') + '"')
+    : args;
+  const r = spawnSync(cmd, winArgs, {
     cwd,
     stdio: "inherit",
     shell: process.platform === "win32",
@@ -90,7 +96,7 @@ function writeJson(p, obj) {
 }
 
 writeJson(join(harness, "packages", GROUP, "human-task", "package.json"), {
-  name: "@deepseek-ai/dsh-human-task",
+  name: "dsh-human-task",
   description: "Human-in-the-loop capability seam (ctx.humanTasks): pause an agent tool until the human performs a real-world task or returns an observation",
   version: "0.1.1",
   publishConfig: { access: "public" },
@@ -103,6 +109,7 @@ writeJson(join(harness, "packages", GROUP, "human-task", "package.json"), {
     "./typert": { types: "./lib/typert.host.d.ts", default: "./lib/typert.host.js" },
     "./remote": { types: "./lib/typert.remote-client.d.ts", default: "./lib/typert.remote-client.js" },
     "./src/*": "./src/*",
+    "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json",
   },
   files: [
@@ -113,7 +120,13 @@ writeJson(join(harness, "packages", GROUP, "human-task", "package.json"), {
     "lib/typert.host.d.ts",
     "lib/typert.remote-client.js",
     "lib/typert.remote-client.d.ts",
+    "cordis.patch.yml",
   ],
+  dsh: {
+    bundle: {
+      patch: "./cordis.patch.yml",
+    },
+  },
   license: "MIT",
   dependencies: {
     // The generated `./typert` and `./remote` faces encode codecs with zod
@@ -121,6 +134,11 @@ writeJson(join(harness, "packages", GROUP, "human-task", "package.json"), {
     // zod when another package inlines it (the client bundle) and at host
     // runtime (typert loader reflection) — mirroring `dsh-goal`.
     zod: "^4.4.3",
+    // The bundle's layer patch inserts these two rows alongside the service;
+    // declaring them here makes `dsh plugin add dsh-human-task` install the
+    // whole family (host service + tools + web dialogs) in one step.
+    "dsh-human-task-tools": "workspace:^",
+    "dsh-human-task-client": "workspace:^",
   },
   peerDependencies: {
     "@deepseek-ai/cordis": "workspace:^",
@@ -133,7 +151,7 @@ writeJson(join(harness, "packages", GROUP, "human-task", "package.json"), {
 });
 
 writeJson(join(harness, "packages", GROUP, "human-task-tools", "package.json"), {
-  name: "@deepseek-ai/dsh-human-task-tools",
+  name: "dsh-human-task-tools",
   description: "Model-facing human_task / human_task_ready_check tools and the human-task skill over the ctx.humanTasks seam",
   version: "0.1.1",
   publishConfig: { access: "public" },
@@ -153,20 +171,20 @@ writeJson(join(harness, "packages", GROUP, "human-task-tools", "package.json"), 
   license: "MIT",
   peerDependencies: {
     "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/dsh-human-task": "workspace:^",
+    "dsh-human-task": "workspace:^",
     "@deepseek-ai/dsh-skill": "workspace:^",
     "@deepseek-ai/dsh-tools": "workspace:^",
   },
   devDependencies: {
     "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/dsh-human-task": "workspace:^",
+    "dsh-human-task": "workspace:^",
     "@deepseek-ai/dsh-skill": "workspace:^",
     "@deepseek-ai/dsh-tools": "workspace:^",
   },
 });
 
 writeJson(join(harness, "packages", GROUP, "human-task-client", "package.json"), {
-  name: "@deepseek-ai/dsh-human-task-client",
+  name: "dsh-human-task-client",
   description: "Web human-task feature: consent / AFK / task dialogs in shell.overlay over the ctx.humanTasks Remote face",
   version: "0.1.1",
   publishConfig: { access: "public" },
@@ -212,7 +230,7 @@ writeJson(join(harness, "packages", GROUP, "human-task-client", "package.json"),
     "@deepseek-ai/dsh-client-runtime": "workspace:^",
     "@deepseek-ai/dsh-client-ui-slots": "workspace:^",
     "@deepseek-ai/dsh-client-ui-theme": "workspace:^",
-    "@deepseek-ai/dsh-human-task": "workspace:^",
+    "dsh-human-task": "workspace:^",
     "@types/react": "~18.3.1",
     react: "^18.2.0",
     "react-dom": "^18.2.0",
@@ -267,7 +285,7 @@ writeJson(join(harness, "packages", GROUP, "human-task-client", "tsconfig.json")
 writeFileSync(
   join(harness, "packages", GROUP, "human-task-client", "tsdown.config.ts"),
   "import { clientBundle } from '../../client/tsdown.client.ts'\n\n"
-  + "export default clientBundle('@deepseek-ai/dsh-human-task-client', ['lib/types/index.js'])\n",
+  + "export default clientBundle('dsh-human-task-client', ['lib/types/index.js'])\n",
 );
 
 // ── 5. register in the aggregate TS project graphs ──────────────────────────
@@ -340,9 +358,9 @@ if (!flags.has("--skip-pack")) {
     "pnpm",
     [
       "-r",
-      "--filter", "@deepseek-ai/dsh-human-task",
-      "--filter", "@deepseek-ai/dsh-human-task-tools",
-      "--filter", "@deepseek-ai/dsh-human-task-client",
+      "--filter", "dsh-human-task",
+      "--filter", "dsh-human-task-tools",
+      "--filter", "dsh-human-task-client",
       "pack",
       "--pack-destination", buildDir,
     ],
